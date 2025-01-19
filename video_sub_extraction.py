@@ -2,10 +2,10 @@ import cv2
 import pytesseract
 import pandas as pd
 import os
-from tqdm import tqdm  # 導入 tqdm
+from tqdm import tqdm
 import math
 
-def extract_subtitles(video_path, tesseract_cmd=None, subtitle_region_ratio=0.2, frame_interval=0.5, language='eng'):
+def extract_subtitles(video_path, tesseract_cmd=None, subtitle_region_ratio=0.2, frame_interval=0.5, language='chi_tra'):
     """
     使用 OCR 從影片檔案中提取字幕。
 
@@ -146,7 +146,7 @@ if __name__ == "__main__":
             tesseract_cmd=tesseract_path,
             subtitle_region_ratio=0.2,
             frame_interval=0.5,
-            language='eng'
+            language='chi_tra'  # 繁體中文
         )
         print(subtitles)
         save_to_srt(subtitles, srt_output)
