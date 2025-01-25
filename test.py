@@ -1,3 +1,4 @@
+import os
 import cv2
 import logging
 from tqdm import tqdm
@@ -33,42 +34,50 @@ start_frame = 0
 x_min, y_min = 0, 890
 x_max, y_max = 1920, 990
 
-# ====== 使用 tqdm 顯示進度 ======
-for frame_num in tqdm(range(total_frames), desc='Processing frames'):
-    ret, frame = cap.read()
-    if not ret:
-        logging.warning("影片讀取失敗或已結束。")
-        break
-    
-    # 裁切出字幕區域
-    subtitle_region = frame[y_min:y_max, x_min:x_max]
-    
-    # 進行灰階與二值化（PaddleOCR 可以自動處理多種前處理，您可以選擇性添加）
-    gray = cv2.cvtColor(subtitle_region, cv2.COLOR_BGR2GRAY)
-    _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
-    
-    # 執行 OCR
-    result = ocr.ocr(thresh, rec=True, cls=False)
-    
-    # 檢查 result 結構並提取文字
-    if result and isinstance(result, list) and len(result) > 0 and isinstance(result[0], list):
-        filtered_lines = []
-        for line in result[0]:
-            if isinstance(line, list) and len(line) > 1 and isinstance(line[1], tuple):
-                text, score = line[1]
-                if score >= confidence_threshold:
-                    filtered_lines.append(text)
-                    # 打印符合閾值的文字和分數（可選）
-                    # print(f"Accepted: '{text}' with confidence {score}")
-        subtitle = ' '.join(filtered_lines).strip()
-    else:
-        subtitle = ''
-    
-    # 打印過濾後的結果（只有高信心分數的文字）
-    print(f"Frame {frame_num} OCR Subtitle: '{subtitle}'")
+# ====== 建立輸出資料夾 (若不存在則自動建立) ======
+output_folder = "output_frames"
+os.makedirs(output_folder, exist_ok=True)
 
-    # 每 30 幀保存一次處理後的圖像
-    if frame_num % 30 == 0:
-        cv2.imwrite(f"subtitle_frame_{frame_num}.png", thresh)
+# 開啟一個文字檔來寫入資料
+with open("ocr_output.txt", "w", encoding="utf-8") as f:
+    # ====== 使用 tqdm 顯示進度 ======
+    for frame_num in tqdm(range(total_frames), desc='Processing frames'):
+        ret, frame = cap.read()
+        if not ret:
+            logging.warning("影片讀取失敗或已結束。")
+            break
+
+        # 裁切出字幕區域
+        subtitle_region = frame[y_min:y_max, x_min:x_max]
+
+        # 進行灰階與二值化（可視需要自行調整或移除）
+        gray = cv2.cvtColor(subtitle_region, cv2.COLOR_BGR2GRAY)
+        _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
+
+        # 執行 OCR
+        result = ocr.ocr(thresh, rec=True, cls=False)
+
+        # 檢查 result 結構並提取文字
+        if result and isinstance(result, list) and len(result) > 0 and isinstance(result[0], list):
+            filtered_lines = []
+            for line in result[0]:
+                if isinstance(line, list) and len(line) > 1 and isinstance(line[1], tuple):
+                    text, score = line[1]
+                    if score >= confidence_threshold:
+                        filtered_lines.append(text)
+            subtitle = ' '.join(filtered_lines).strip()
+        else:
+            subtitle = ''
+
+        # 在終端顯示過濾後的結果（只有高信心分數的文字）
+        print(f"Frame {frame_num} OCR Subtitle: '{subtitle}'")
+
+        # 將 frame id 以及字幕寫入文字檔，每行一筆
+        f.write(f"{frame_num}\t{subtitle}\n")
+
+        # 每 50 幀時保存處理後的圖像到指定資料夾
+        if frame_num % 50 == 0:
+            output_path = os.path.join(output_folder, f"subtitle_frame_{frame_num}.png")
+            cv2.imwrite(output_path, thresh)
 
 cap.release()

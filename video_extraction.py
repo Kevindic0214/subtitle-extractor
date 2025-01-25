@@ -46,7 +46,7 @@ for frame_num in tqdm(range(total_frames), desc='Processing frames'):
     _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
     
     # 執行 OCR
-    subtitle = pytesseract.image_to_string(thresh, lang='chi_tra', config='--psm 7').strip()
+    subtitle = pytesseract.image_to_string(thresh, lang='chi_tra', config='--psm 6').strip()
     
     # 輸出幀數與字幕
     logging.info(f"第 {frame_num} 幀的辨識結果：'{subtitle}'")
