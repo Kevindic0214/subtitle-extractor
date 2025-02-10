@@ -139,7 +139,7 @@ if __name__ == "__main__":
     video_path = "example.mp4"
     srt_output = "subtitles.srt"
     # 根據您的安裝情況更新 Tesseract 路徑，若已加入 PATH，則設為 None
-    tesseract_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"  # Windows 範例
+    tesseract_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
     try:
         subtitles = extract_subtitles(
             video_path,
