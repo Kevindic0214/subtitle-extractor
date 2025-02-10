@@ -10,7 +10,7 @@ from paddleocr import PaddleOCR
 
 # 設定全域的 Logger
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 # 若需要將日誌輸出到檔案，可自行新增 FileHandler
 handler = logging.StreamHandler()
 formatter = logging.Formatter("[%(asctime)s] %(levelname)s:%(name)s: %(message)s")
@@ -97,6 +97,14 @@ def ocr_image(image_path: str) -> str:
     if img is None:
         logger.warning(f"無法讀取圖片或圖片不存在: {image_path}")
         return ""
+
+    
+    # 取下方 25% 高度範圍 (由 75%~95%)，左右 10%~90% 寬度
+    # height, width, _ = img.shape
+    # cropped_img = img[
+    #     int(height * 0.75):int(height * 0.95),
+    #     int(width * 0.10):int(width * 0.90)
+    # ]
 
     # 指定裁切範圍 (y1:y2, x1:x2)
     # y1=884, y2=1002, x1=204, x2=1727
