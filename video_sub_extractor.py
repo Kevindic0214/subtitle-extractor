@@ -3,6 +3,7 @@ import re
 import cv2
 import ffmpeg
 import logging
+import time
 import numpy as np
 from datetime import timedelta
 from difflib import SequenceMatcher
@@ -196,6 +197,9 @@ def process_video(video_path: str, output_vtt: str, fps: int = 2):
 
 # 使用範例 (請自行移除或修改)
 if __name__ == "__main__":
+    start_time = time.time()  # 記錄開始時間
     video_file = "apple.mp4"
     vtt_output = "apple.vtt"
     process_video(video_file, vtt_output, fps=2)
+    end_time = time.time()    # 記錄結束時間
+    logger.info(f"整支程式執行總時間: {end_time - start_time:.2f} 秒")
